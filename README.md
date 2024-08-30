@@ -1,12 +1,11 @@
-# Simple Task Manager Server
-
-_A minimalistic server setup for managing tasks._
+# Task Manager Server
 
 ## Overview
 
-This project sets up a simple Go-based Task Manager Server, which is primarily designed for demonstration purposes.
-It includes a basic API, although the server itself doesn't perform any real tasks beyond providing a framework
-for potential expansions.
+This project implements a robust Task Manager Server using Go, designed for handling real image processing tasks.
+The server supports a distributed system architecture, allowing for horizontal scalability to manage and process
+image-related tasks efficiently.  It includes a comprehensive API for task submission and status tracking,
+with the capability to offload tasks to a dedicated processing service and store results in a database.
 
 ## Getting Started
 
