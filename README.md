@@ -11,14 +11,25 @@ with the capability to offload tasks to a dedicated processing service and store
 
 ### Building and Running the Docker Image
 
-To build the Docker image for the Task Manager Server and run tests, follow these steps:
+To manage the Task Manager Server, you can use the following `make` commands:
 
-**Build the Docker image and run tests using Make:**
+- **Build the Docker image and run tests:**
 
-    ```bash
-    make tests
-    ```
+   ```bash
+   make tests
+   ```
 
+- **Start the server without running tests:**
+
+   ```bash
+   make run
+   ```
+
+- **Stop the server and close any running images:**
+
+   ```bash
+   make stop
+   ```
 
 ### Shooter API
 
@@ -37,24 +48,28 @@ The Shooter API allows you to apply filters to images. Here’s how to use it:
     python shoot.py <FilterName> [<Parameters>]
     ```
 
-    - **`<FilterName>`**: Name of the filter (e.g., `Negative`, `Blur`, `Sharpen`).
+    - **`<FilterName>`**: Name of the filter (e.g., `Grayscale`, `Negative`, `Blur`, `Sharpen`).
     - **`<Parameters>`**: Optional filter parameters in JSON format (e.g., `{"sigma": 5.0}`).
 
 The processed images will be saved in the 'shooter/results' directory.
 
 **Examples:**
 
-```bash
-python shoot.py Negative
-```
+   ```bash
+   python shoot.py Grayscale
+   ```
 
-```bash
-python shoot.py Blur '{"sigma": 5.0}'
-```
+   ```bash
+   python shoot.py Negative
+   ```
 
-```bash
-python shoot.py Sharpen '{"sigma": 5.0}'
-```
+   ```bash
+   python shoot.py Blur '{"sigma": 5.0}'
+   ```
+
+   ```bash
+   python shoot.py Sharpen '{"sigma": 5.0}'
+   ```
 
 ### Accessing the API Documentation
 

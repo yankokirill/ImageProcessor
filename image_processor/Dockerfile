@@ -1,14 +1,17 @@
 FROM golang:latest AS builder
 
 WORKDIR /build
+
 COPY models models
+COPY messaging messaging
 COPY image_processor image_processor
 
-WORKDIR /build/image_processor
 
-COPY image_processor/go.mod image_processor/go.sum ./
+COPY go.mod go.sum ./
+RUN go mod tidy
 RUN go mod download
 
+WORKDIR /build/image_processor
 RUN go build -o main .
 
 FROM ubuntu:latest

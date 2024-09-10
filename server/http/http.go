@@ -3,22 +3,20 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/streadway/amqp"
-	. "models"
+	httpSwagger "github.com/swaggo/http-swagger"
+	. "github.com/yankokirill/ImageProcessor/messaging"
+	. "github.com/yankokirill/ImageProcessor/models"
+	_ "github.com/yankokirill/ImageProcessor/server/docs"
+	. "github.com/yankokirill/ImageProcessor/storage"
 	"net/http"
 	"strings"
-
-	httpSwagger "github.com/swaggo/http-swagger"
-	_ "server/docs"
 )
 
-// Server defines the HTTP server for handling task-related requests.
 type Server struct {
 	storage Storage
-	ch      *amqp.Channel
+	broker  Producer
 }
 
 type Response struct {
@@ -27,30 +25,8 @@ type Response struct {
 	Code  int
 }
 
-func NewServer(storage Storage, ch *amqp.Channel) *Server {
-	return &Server{storage, ch}
-}
-
-func (s *Server) sendTask(task Task) error {
-	body, err := json.Marshal(task)
-	if err != nil {
-		return fmt.Errorf("failed to marshal task: %w", err)
-	}
-
-	err = s.ch.Publish(
-		"",
-		"task_queue",
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        body,
-		})
-	if err != nil {
-		return fmt.Errorf("failed to publish task: %w", err)
-	}
-
-	return nil
+func NewServer(storage Storage, broker Producer) *Server {
+	return &Server{storage, broker}
 }
 
 // AuthMiddleware checks for a valid authorization token in the request header
@@ -210,6 +186,23 @@ func (s *Server) getResultHandler(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, "result", response.Data.Result)
 }
 
+func (s *Server) createTask(data *ImageProcessorPayload) Response {
+	task := Task{
+		ID:      uuid.New(),
+		Payload: *data,
+		Status:  "in_progress",
+	}
+	if err := s.storage.AddTask(task); err != nil {
+		return Response{nil, "Failed to add task", http.StatusInternalServerError}
+	}
+
+	err := s.broker.Publish(task)
+	if err != nil {
+		return Response{nil, "Failed to enqueue task", http.StatusInternalServerError}
+	}
+	return Response{Data: &task}
+}
+
 // postTaskHandler handles task creation requests.
 // @Summary Create a new task
 // @Description Creates a new task, sends it to ImageProcessor and returns the task ID.
@@ -228,25 +221,13 @@ func (s *Server) postTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	taskID := uuid.New()
-	task := Task{
-		ID:      taskID,
-		Payload: data,
-		Status:  "in_progress",
+	response := s.createTask(&data)
+	if response.Error != "" {
+		http.Error(w, response.Error, response.Code)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+		sendJSON(w, "task_id", response.Data.ID.String())
 	}
-	if err := s.storage.AddTask(task); err != nil {
-		http.Error(w, "Failed to add task", http.StatusInternalServerError)
-		return
-	}
-
-	err := s.sendTask(task)
-	if err != nil {
-		http.Error(w, "Failed to enqueue task", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	sendJSON(w, "task_id", taskID.String())
 }
 
 // postCommitHandler updates the task status and result.

@@ -6,26 +6,74 @@ info:
   title: Task Management API
   version: "1.0"
 paths:
-  /result:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+      summary: Log in a user
+      tags:
+      - user
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account.
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Failed to store value
+          schema:
+            type: string
+      summary: Register a new user
+      tags:
+      - user
+  /result/{task_id}:
     get:
       consumes:
       - application/json
-      description: Retrieve the result of a task by its ID.
+      description: Retrieves the current result of the task by its id.
       parameters:
       - description: Task ID
-        in: query
+        in: path
         name: task_id
         required: true
         type: string
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
-          description: Result of the task
+          description: Task Result
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
           schema:
             type: string
-        "400":
-          description: Missing task id
+        "401":
+          description: Unauthorized
           schema:
             type: string
         "404":
@@ -35,26 +83,32 @@ paths:
       summary: Get task result
       tags:
       - tasks
-  /status:
+  /status/{task_id}:
     get:
       consumes:
       - application/json
-      description: Retrieve the status of a task by its ID.
+      description: Retrieves the current status of the task by its id.
       parameters:
       - description: Task ID
-        in: query
+        in: path
         name: task_id
         required: true
         type: string
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
-          description: Status of the task
+          description: Task Status
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
           schema:
             type: string
-        "400":
-          description: Missing task id
+        "401":
+          description: Unauthorized
           schema:
             type: string
         "404":
@@ -68,7 +122,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new task and returns the task ID.
+      description: Creates a new task, sends it to ImageProcessor and returns the
+        task ID.
       produces:
       - application/json
       responses:
@@ -82,6 +137,10 @@ paths:
           description: Invalid request
           schema:
             type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
         "500":
           description: Failed to add task
           schema:
@@ -90,5 +149,5 @@ paths:
       tags:
       - tasks
 schemes:
-- http
+- commit
 swagger: "2.0"

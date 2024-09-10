@@ -12,14 +12,78 @@
     "host": "localhost:8000",
     "basePath": "/",
     "paths": {
-        "/result": {
-            "get": {
-                "description": "Retrieve the result of a task by its ID.",
+        "/login": {
+            "post": {
+                "description": "Authenticates a user and returns a token.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Log in a user",
+                "responses": {
+                    "200": {
+                        "description": "Token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Creates a new user account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Register a new user",
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to store value",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/result/{task_id}": {
+            "get": {
+                "description": "Retrieves the current result of the task by its id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
                 ],
                 "tags": [
                     "tasks"
@@ -30,19 +94,28 @@
                         "type": "string",
                         "description": "Task ID",
                         "name": "task_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Result of the task",
+                        "description": "Task Result",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "400": {
-                        "description": "Missing task id",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "string"
                         }
@@ -56,14 +129,14 @@
                 }
             }
         },
-        "/status": {
+        "/status/{task_id}": {
             "get": {
-                "description": "Retrieve the status of a task by its ID.",
+                "description": "Retrieves the current status of the task by its id.",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
                     "tasks"
@@ -74,19 +147,28 @@
                         "type": "string",
                         "description": "Task ID",
                         "name": "task_id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Status of the task",
+                        "description": "Task Status",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "400": {
-                        "description": "Missing task id",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "string"
                         }
@@ -102,7 +184,7 @@
         },
         "/task": {
             "post": {
-                "description": "Creates a new task and returns the task ID.",
+                "description": "Creates a new task, sends it to ImageProcessor and returns the task ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -125,6 +207,12 @@
                     },
                     "400": {
                         "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "string"
                         }
