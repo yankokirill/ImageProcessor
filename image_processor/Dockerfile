@@ -3,6 +3,7 @@ FROM golang:latest AS builder
 WORKDIR /build
 
 COPY models models
+COPY storage storage
 COPY messaging messaging
 COPY image_processor image_processor
 

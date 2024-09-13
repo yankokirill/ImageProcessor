@@ -16,6 +16,7 @@ type ImageProcessorPayload struct {
 
 type Task struct {
 	ID      uuid.UUID `json:"task_id"`
+	UserID  uuid.UUID `json:"user_id"`
 	Payload ImageProcessorPayload
 	Status  string `json:"status"`
 	Result  string `json:"result"`

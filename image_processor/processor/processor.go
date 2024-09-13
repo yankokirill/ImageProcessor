@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/base64"
 	"github.com/disintegration/imaging"
-	. "github.com/yankokirill/ImageProcessor/image_processor/my_filters"
-	. "github.com/yankokirill/ImageProcessor/models"
+	. "hw/image_processor/my_filters"
+	. "hw/models"
 	"image"
 	"image/png"
 )
@@ -39,7 +39,7 @@ func Process(task Task) (status, result string) {
 	case "Negative":
 		img = Negative(img)
 	default:
-		return "Invalid parameters", "Unknown filter"
+		return "failed", "Unknown filter"
 	}
 
 	var buf bytes.Buffer

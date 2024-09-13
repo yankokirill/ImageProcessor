@@ -28,9 +28,6 @@ def auth_token(user_data):
 
     return data['token']
 
-def get_code_processor_payload():
-    return {"tranlator": "python3", "code": "print('Hello, stdout world!')"}
-
 def get_image_processor_payload():
     with open("static/sigma.png", "rb") as image_file:
         image_bytes = image_file.read()
@@ -42,13 +39,7 @@ def test_create_task(auth_token):
     task_url = f"{BASE_URL}/task"
     headers = {'Authorization': f'Bearer {auth_token}'}
 
-    payload = dict()
-    # payload = get_code_processor_payload()
-    # payload = get_image_processor_payload()
-
-
-    if len(payload) == 0:
-        payload = get_image_processor_payload()
+    payload = get_image_processor_payload()
 
     response = requests.post(task_url, headers=headers, json=payload)
 

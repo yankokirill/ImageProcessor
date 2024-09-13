@@ -4,8 +4,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"   # Port for RabbitMQ
-      - "15672:15672" # Port for RabbitMQ management UI
+      - "5672:5672"   # RabbitMQ Port
+      - "15672:15672" # RabbitMQ management UI
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -15,6 +15,22 @@ services:
       timeout: 30s
       retries: 3
 
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./storage/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
   image_processor:
     build:
       context: .
@@ -22,6 +38,9 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    environment:
+      POSTGRES_CONN_STRING: "postgresql://user:password@postgres:5432/mydatabase"
+      RABBITMQ_ADDR: "amqp://guest:guest@rabbitmq:5672/"
 
   server:
     build:
@@ -32,6 +51,10 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+    environment:
+      POSTGRES_CONN_STRING: "postgresql://user:password@postgres:5432/mydatabase"
+      REDIS_ADDR: "redis:6379"
+      RABBITMQ_ADDR: "amqp://guest:guest@rabbitmq:5672/"
 
   tests:
     build:

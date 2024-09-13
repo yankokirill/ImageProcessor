@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
-	. "github.com/yankokirill/ImageProcessor/models"
+	. "hw/models"
 	"log"
 )
 
@@ -12,7 +12,7 @@ var _ Producer = ProducerRMQ{}
 var _ Consumer = ConsumerRMQ{}
 
 type Producer interface {
-	Publish(task Task) error
+	Publish(task *Task) error
 }
 
 type Consumer interface {
@@ -27,26 +27,26 @@ type ConsumerRMQ struct {
 	ch *amqp.Channel
 }
 
-func NewProducerRMQ() ProducerRMQ {
-	return ProducerRMQ{createChannel()}
+func NewProducerRMQ(rabbitMQAddr string) ProducerRMQ {
+	return ProducerRMQ{createChannel(rabbitMQAddr)}
 }
 
-func NewConsumerRMQ() ConsumerRMQ {
-	return ConsumerRMQ{createChannel()}
+func NewConsumerRMQ(rabbitMQAddr string) ConsumerRMQ {
+	return ConsumerRMQ{createChannel(rabbitMQAddr)}
 }
 
 func failOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s", msg)
+		log.Fatalf("%s: %v", msg, err)
 	}
 }
 
-func createChannel() *amqp.Channel {
-	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
+func createChannel(rabbitMQAddr string) *amqp.Channel {
+	conn, err := amqp.Dial(rabbitMQAddr)
+	failOnError(err, "failed to connect to RabbitMQ")
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	failOnError(err, "failed to open a channel")
 
 	_, err = ch.QueueDeclare(
 		"task_queue",
@@ -56,7 +56,7 @@ func createChannel() *amqp.Channel {
 		false,
 		nil,
 	)
-	failOnError(err, "Failed to declare a queue")
+	failOnError(err, "failed to declare a queue")
 	return ch
 }
 
@@ -70,11 +70,11 @@ func (c ConsumerRMQ) Consume() <-chan amqp.Delivery {
 		false,
 		nil,
 	)
-	failOnError(err, "Failed to register a consumer")
+	failOnError(err, "failed to register a consumer")
 	return msgs
 }
 
-func (b ProducerRMQ) Publish(task Task) error {
+func (b ProducerRMQ) Publish(task *Task) error {
 	body, err := json.Marshal(task)
 	if err != nil {
 		return fmt.Errorf("failed to marshal task: %w", err)

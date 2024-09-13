@@ -39,7 +39,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Invalid credentials",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -71,7 +77,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to store value",
+                        "description": "Failed to store user",
                         "schema": {
                             "type": "string"
                         }
@@ -81,7 +87,7 @@ const docTemplate = `{
         },
         "/result/{task_id}": {
             "get": {
-                "description": "Retrieves the current result of the task by its id.",
+                "description": "Retrieves the current result of the task by its ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -91,7 +97,7 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Get task result",
+                "summary": "GetTask task result",
                 "parameters": [
                     {
                         "type": "string",
@@ -128,13 +134,19 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             }
         },
         "/status/{task_id}": {
             "get": {
-                "description": "Retrieves the current status of the task by its id.",
+                "description": "Retrieves the current status of the task by its ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -144,7 +156,7 @@ const docTemplate = `{
                 "tags": [
                     "tasks"
                 ],
-                "summary": "Get task status",
+                "summary": "GetTask task status",
                 "parameters": [
                     {
                         "type": "string",
@@ -178,6 +190,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Task not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
